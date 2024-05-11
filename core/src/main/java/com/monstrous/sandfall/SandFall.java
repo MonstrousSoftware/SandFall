@@ -46,7 +46,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     private int readTexIndex;
     private float zoom = 1f;
     private boolean paused = false;
-    private boolean started = true;
+    private boolean started = false;
     private boolean step = false;
     private StringBuffer sb = new StringBuffer();
     private int stepCount = 0;
@@ -149,7 +149,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         for(Texture tex : textures )
             tex.dispose();
         font.dispose();
-       // pixmapBrush.dispose();
+        pixmapBrush.dispose();
     }
 
 
@@ -192,6 +192,12 @@ public class SandFall extends InputAdapter implements ApplicationListener {
 
         pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
         tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 200);
+        pixmap.dispose();
+
+        pixmap = new Pixmap(tex.getWidth()/2, 10, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.BLUE);
+        pixmap.fill();
+        tex.draw(pixmap, tex.getWidth()/4, tex.getHeight() - 50);
         pixmap.dispose();
     }
 
