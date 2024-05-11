@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
@@ -102,10 +103,10 @@ public class SandFall extends InputAdapter implements ApplicationListener {
 
 
         batchText.begin();
-//        sb.setLength(0);
-//        sb.append("FPS: ");
-//        sb.append(Gdx.graphics.getFramesPerSecond());
-//        font.draw(batchText, sb.toString() , 0,20);     // show fps
+        sb.setLength(0);
+        sb.append("FPS: ");
+        sb.append(Gdx.graphics.getFramesPerSecond());
+        font.draw(batchText, sb.toString() , 0,20);     // show fps
         if(!started) {
             GlyphLayout layout = new GlyphLayout(font, PROMPT);
             int w = Gdx.graphics.getWidth();
@@ -148,7 +149,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         for(Texture tex : textures )
             tex.dispose();
         font.dispose();
-        pixmapBrush.dispose();
+       // pixmapBrush.dispose();
     }
 
 
