@@ -13,11 +13,21 @@ layout(binding = 1, rgba8) uniform writeonly restrict image2D writeImage;
 uniform int u_step; // frame counter
 
 const float bottom = gl_NumWorkGroups.y * gl_WorkGroupSize.y-1;    // y-coordinate of "ground surface"
+const float rightEdge = gl_NumWorkGroups.x * gl_WorkGroupSize.x-1;
 
 
 // a black pixel is counted as empty space
 bool isEmpty(vec4 color){
     return color.r == 0 && color.g == 0 && color.b == 0;
+}
+
+// a blue pixel is counted as immovable
+bool isFixed(vec4 color){
+    return color.r == 0 && color.g == 0 && color.b == 1.0f;
+}
+
+bool isMovable(vec4 color){
+    return !isEmpty(color) && !isFixed(color);
 }
 
 // read pixel from the input buffer
@@ -33,10 +43,10 @@ void slide_left( uvec2 pos ){
     vec4 belowLeft = readPixel(pos.x-1, pos.y+1);
 
     if(pos.y < bottom) {
-        if (pos.y > 0 && isEmpty(pixel) && !isEmpty(right) && !isEmpty(aboveRight)) {
+        if (pos.y > 0 && isEmpty(pixel) && !isEmpty(right) && isMovable(aboveRight)) {
             pixel = aboveRight;
         }
-        else if (pos.y < bottom && pos.x > 0 && !isEmpty(pixel) && !isEmpty(below) && isEmpty(belowLeft) ) {
+        else if (pos.y < bottom && pos.x > 0 && isMovable(pixel) && !isEmpty(below) && isEmpty(belowLeft) ) {
             pixel = belowLeft;
         }
     }
@@ -53,10 +63,10 @@ void slide_right( uvec2 pos ){
     vec4 belowRight = readPixel(pos.x+1u, pos.y+1u);
 
     if(pos.y < bottom) {
-        if (pos.y > 0 && isEmpty(pixel) && !isEmpty(left) && !isEmpty(aboveLeft)) {
+        if (pos.y > 0 && isEmpty(pixel) && !isEmpty(left) && isMovable(aboveLeft)) {
             pixel = aboveLeft;
         }
-        else if (pos.y < bottom && pos.x < WX && !isEmpty(pixel) && !isEmpty(below) && !isEmpty(belowRight) ) {
+        else if (pos.y < bottom && pos.x < rightEdge && isMovable(pixel) && !isEmpty(below) && isEmpty(belowRight) ) {
             pixel = belowRight;
         }
     }
@@ -72,12 +82,12 @@ bool drop_down( uvec2 pos ){
 
     if(pos.y <= bottom) {
         // if the current pixel is empty and the one above is not, adopt the colour from the above pixel
-        if (pos.y > 0 && isEmpty(pixel) && !isEmpty(above)) {
+        if (pos.y > 0 && isEmpty(pixel) && isMovable(above)) {
             pixel = above;
             moved = true;
         }
         // if the pixel is not empty and the one below is, adopt the colour from the empty space
-        else if (pos.y < bottom && isEmpty(below) && !isEmpty(pixel)) {
+        else if (pos.y < bottom && isEmpty(below) && isMovable(pixel)) {
             pixel = below;
             moved = true;
         }
