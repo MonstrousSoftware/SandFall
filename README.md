@@ -10,7 +10,7 @@ Controls:
 - S to single-step when frozen
 - R to reset
 
-![screenshot](https://github.com/MonstrousSoftware/SandFall/assets/49096535/9af80de3-b02e-4f52-aa6d-6414b9c3ff34)
+![screenshot](screenshot.png)
 
 
 How does it work?
