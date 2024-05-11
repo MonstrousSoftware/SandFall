@@ -3,6 +3,7 @@
 Demonstrator of a falling sand effect using compute shaders.
 
 Requires GLES 3.1.
+
 ![screenshot](https://github.com/MonstrousSoftware/SandFall/assets/49096535/9af80de3-b02e-4f52-aa6d-6414b9c3ff34)
 
 
