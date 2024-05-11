@@ -45,10 +45,11 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     private int readTexIndex;
     private float zoom = 1f;
     private boolean paused = false;
-    private boolean started = false;
+    private boolean started = true;
     private boolean step = false;
     private StringBuffer sb = new StringBuffer();
     private int stepCount = 0;
+    private Pixmap pixmapBrush;
 
     @Override
     public void create() {
@@ -69,11 +70,14 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         initState();
 
         Gdx.input.setInputProcessor( this );
+        pixmapBrush = new Pixmap(Gdx.files.internal("brush.png"));
     }
 
     @Override
     public void resize(int width, int height) {
+
         viewport.update(width, height, false);
+        batchText.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     }
 
     @Override
@@ -104,7 +108,9 @@ public class SandFall extends InputAdapter implements ApplicationListener {
 //        font.draw(batchText, sb.toString() , 0,20);     // show fps
         if(!started) {
             GlyphLayout layout = new GlyphLayout(font, PROMPT);
-            font.draw(batchText, PROMPT, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() * 0.25f);
+            int w = Gdx.graphics.getWidth();
+            int x = (int)(w - layout.width)/2;
+            font.draw(batchText, PROMPT, x, Gdx.graphics.getHeight() * 0.25f);
         }
         batchText.end();
 
@@ -142,6 +148,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         for(Texture tex : textures )
             tex.dispose();
         font.dispose();
+        pixmapBrush.dispose();
     }
 
 
@@ -153,7 +160,13 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         return true;
     }
 
-     private void createTextures() {
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        addBrushStroke(screenX, screenY);
+        return true;
+    }
+
+    private void createTextures() {
 
         textures = new Texture[2];
         for (int i = 0; i < textures.length; i++) {
@@ -182,14 +195,13 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     }
 
     private void addBrushStroke(int x, int y) {
-        Texture tex = textures[readTexIndex];
-
         Vector3 posVec = new Vector3(x, y, 0);
-        viewport.getCamera().project(posVec);
+        viewport.getCamera().unproject(posVec);
 
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
-        tex.draw(pixmap, (int)posVec.x, (int)posVec.y);
-        pixmap.dispose();
+        // note: alpha blending doesn't work when drawing a pixmap to texture,
+        // so we use a square brush
+        Texture tex = textures[readTexIndex];
+        tex.draw(pixmapBrush, (int)posVec.x,(int)(tex.getHeight() - posVec.y));
     }
 
 

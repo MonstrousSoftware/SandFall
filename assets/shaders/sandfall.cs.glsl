@@ -12,7 +12,7 @@ layout(binding = 1, rgba8) uniform writeonly restrict image2D writeImage;
 
 uniform int u_step; // frame counter
 
-const float bottom = gl_NumWorkGroups.y * gl_WorkGroupSize.y - 120.0;    // y-coordinate of "ground surface"
+const float bottom = gl_NumWorkGroups.y * gl_WorkGroupSize.y-1;    // y-coordinate of "ground surface"
 
 
 // a black pixel is counted as empty space
@@ -32,7 +32,7 @@ void slide_left( uvec2 pos ){
     vec4 below = readPixel(pos.x, pos.y+1);
     vec4 belowLeft = readPixel(pos.x-1, pos.y+1);
 
-    if(pos.y <= bottom) {
+    if(pos.y < bottom) {
         if (pos.y > 0 && isEmpty(pixel) && !isEmpty(right) && !isEmpty(aboveRight)) {
             pixel = aboveRight;
         }
@@ -52,7 +52,7 @@ void slide_right( uvec2 pos ){
     vec4 below = readPixel(pos.x, pos.y+1u);
     vec4 belowRight = readPixel(pos.x+1u, pos.y+1u);
 
-    if(pos.y <= bottom) {
+    if(pos.y < bottom) {
         if (pos.y > 0 && isEmpty(pixel) && !isEmpty(left) && !isEmpty(aboveLeft)) {
             pixel = aboveLeft;
         }
