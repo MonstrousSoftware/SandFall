@@ -12,7 +12,7 @@ layout(binding = 1, rgba8) uniform writeonly restrict image2D writeImage;
 
 uniform int u_step; // frame counter
 
-const float bottom = gl_NumWorkGroups.y * gl_WorkGroupSize.y - 20.0;    // y-coordinate of "ground surface"
+const float bottom = gl_NumWorkGroups.y * gl_WorkGroupSize.y - 120.0;    // y-coordinate of "ground surface"
 
 
 // a black pixel is counted as empty space

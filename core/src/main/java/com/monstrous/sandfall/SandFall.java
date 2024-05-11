@@ -28,7 +28,7 @@ import static com.badlogic.gdx.graphics.GL31.*;
  */
 
 public class SandFall extends InputAdapter implements ApplicationListener {
-    private final String PROMPT = "PRESS ANY KEY TO START";
+    private final String PROMPT = "PRESS ENTER TO START";
 
     private SpriteBatch batch;
     private SpriteBatch batchText;
@@ -95,12 +95,13 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         batch.draw(textures[readTexIndex], 0, 0);
         batch.end();
 
-        sb.setLength(0);
-        sb.append("FPS: ");
-        sb.append(Gdx.graphics.getFramesPerSecond());
+
 
         batchText.begin();
-        font.draw(batchText, sb.toString() , 0,20);     // show fps
+//        sb.setLength(0);
+//        sb.append("FPS: ");
+//        sb.append(Gdx.graphics.getFramesPerSecond());
+//        font.draw(batchText, sb.toString() , 0,20);     // show fps
         if(!started) {
             GlyphLayout layout = new GlyphLayout(font, PROMPT);
             font.draw(batchText, PROMPT, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() * 0.25f);
