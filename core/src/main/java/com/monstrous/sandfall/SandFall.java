@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -15,25 +15,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.badlogic.gdx.graphics.GL31.*;
-import static java.lang.Integer.parseInt;
+
 
 /**
- * Conway's Game of Life using OpenGL compute shader.
+ * Falling Sand demo using compute shader in GLSL
  *
- * LibGDX version by Monstrous Software (May 2024)
- * Requires LibGDX adaptation to provide the following GL methods:
- *         gl.glBindImageTexture();
- *         gl.glDispatchCompute();
- *         gl.glMemoryBarrier()
+ * by Monstrous Software (May 2024)
  *
- * Based on LWJGL3 demo by Kai Burjack
- * https://www.youtube.com/watch?v=h7aCroRpkN0
- * https://github.com/LWJGL/lwjgl3-demos/blob/main/src/org/lwjgl/demo/opengl/shader/GameOfLife.java
  */
 
 public class SandFall extends InputAdapter implements ApplicationListener {
@@ -57,7 +48,6 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     private boolean started = false;
     private boolean step = false;
     private StringBuffer sb = new StringBuffer();
-    private final Vector2 prevTouch = new Vector2();
     private int stepCount = 0;
 
     @Override
@@ -73,9 +63,6 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         viewport.getCamera().position.set(MAX_NUM_CELLS_X/2f, MAX_NUM_CELLS_Y/2f, 0);
 
         font = new BitmapFont();
-
-        //texture = new Texture( Gdx.files.internal("libgdx.png"));
-
         computeProgram = createIterationProgram();
 
         createTextures();
@@ -86,7 +73,6 @@ public class SandFall extends InputAdapter implements ApplicationListener {
 
     @Override
     public void resize(int width, int height) {
-
         viewport.update(width, height, false);
     }
 
@@ -96,8 +82,10 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         handleKeys();
 
         // call compute shader to iterate one step
-        if(started && (!paused || step))
+        if(started && (!paused || step)) {
             computeNextState();
+            readTexIndex = 1 - readTexIndex; // switch input and output buffer for next iteration
+        }
 
         // render the texture to the screen
         ScreenUtils.clear(Color.BLACK, false);
@@ -107,40 +95,34 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         batch.draw(textures[readTexIndex], 0, 0);
         batch.end();
 
-
         sb.setLength(0);
         sb.append("FPS: ");
         sb.append(Gdx.graphics.getFramesPerSecond());
 
         batchText.begin();
-
-        font.draw(batchText, sb.toString() , 0,20);
+        font.draw(batchText, sb.toString() , 0,20);     // show fps
         if(!started) {
             GlyphLayout layout = new GlyphLayout(font, PROMPT);
             font.draw(batchText, PROMPT, (Gdx.graphics.getWidth() - layout.width) / 2, Gdx.graphics.getHeight() * 0.25f);
         }
         batchText.end();
 
-
-        // switch input and output buffer for next iteration
-        if(started && (!paused || step))
-            readTexIndex = 1 - readTexIndex;
         step = false;
     }
 
     private void handleKeys(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             Gdx.app.exit();
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
             paused = !paused;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.S))
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.S))
             step = true;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             initState();
             started = false;
             paused = false;
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY))
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY))
             started = true;
     }
 
@@ -163,10 +145,10 @@ public class SandFall extends InputAdapter implements ApplicationListener {
 
 
 
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         started = true;
+        addBrushStroke(screenX, screenY);
         return true;
     }
 
@@ -193,9 +175,20 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 100);
         pixmap.dispose();
 
-//        pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
-//        tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 200);
-//        pixmap.dispose();
+        pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
+        tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 200);
+        pixmap.dispose();
+    }
+
+    private void addBrushStroke(int x, int y) {
+        Texture tex = textures[readTexIndex];
+
+        Vector3 posVec = new Vector3(x, y, 0);
+        viewport.getCamera().project(posVec);
+
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
+        tex.draw(pixmap, (int)posVec.x, (int)posVec.y);
+        pixmap.dispose();
     }
 
 
