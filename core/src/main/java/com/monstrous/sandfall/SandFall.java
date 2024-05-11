@@ -85,6 +85,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     public void render() {
         // process keyboard input
         handleKeys();
+        handleMouse();
 
         // call compute shader to iterate one step
         if(started && (!paused || step)) {
@@ -134,6 +135,13 @@ public class SandFall extends InputAdapter implements ApplicationListener {
             started = true;
     }
 
+    private void handleMouse(){
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+            started = true;
+            addBrushStroke(Gdx.input.getX(), Gdx.input.getY());
+        }
+    }
+
     @Override
     public void pause() {
     }
@@ -153,20 +161,6 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     }
 
 
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        started = true;
-        addBrushStroke(screenX, screenY);
-        return true;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        addBrushStroke(screenX, screenY);
-        return true;
-    }
-
     private void createTextures() {
 
         textures = new Texture[2];
@@ -178,22 +172,26 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         }
     }
 
+    // fill the input texture with the start screen contents
     private void initState() {
         Texture tex = textures[readTexIndex];
         Pixmap pixmap = new Pixmap(tex.getWidth(), tex.getHeight(), Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.BLACK);
         pixmap.fill();
-        tex.draw(pixmap, 0, 0);
+        tex.draw(pixmap, 0, 0); // clear the texture to black
         pixmap.dispose();
 
+        // add a logo
         pixmap = new Pixmap(Gdx.files.internal("libgdx.png"));
         tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 100);
         pixmap.dispose();
 
+        // add a logo
         pixmap = new Pixmap(Gdx.files.internal("monstrous.png"));
         tex.draw(pixmap, (MAX_NUM_CELLS_X - pixmap.getWidth())/2, 200);
         pixmap.dispose();
 
+        // add a blue platform
         pixmap = new Pixmap(tex.getWidth()/2, 10, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.BLUE);
         pixmap.fill();

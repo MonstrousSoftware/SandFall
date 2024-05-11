@@ -4,13 +4,15 @@ Demonstrator of a falling sand effect using compute shaders.
 
 Requires GLES 3.1.
 
+![screenshot](screenshot.png)
+
 Controls:
 - mouse drag to add sand
 - SPACE to freeze animation
 - S to single-step when frozen
 - R to reset
 
-![screenshot](screenshot.png)
+
 
 
 How does it work?
@@ -26,6 +28,8 @@ For example: if a pixel is empty (black) and the pixel above is not (another col
 output pixel will take the colour from the above pixel to simulate the colour dropping down.
 Meanwhile, the shader for the pixel above detects it has a colour and the cell below is empty,
 so it will output an empty colour.
+
+Pixels that are pure blue are consider immovable.
 
 
 
