@@ -4,7 +4,6 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
@@ -51,6 +50,7 @@ public class SandFall extends InputAdapter implements ApplicationListener {
     private StringBuffer sb = new StringBuffer();
     private int stepCount = 0;
     private Pixmap pixmapBrush;
+    private float updateTimer = 0;
 
     @Override
     public void create() {
@@ -87,10 +87,16 @@ public class SandFall extends InputAdapter implements ApplicationListener {
         handleKeys();
         handleMouse();
 
+
+
         // call compute shader to iterate one step
         if(started && (!paused || step)) {
-            computeNextState();
-            readTexIndex = 1 - readTexIndex; // switch input and output buffer for next iteration
+            updateTimer += Gdx.graphics.getDeltaTime();
+            if(updateTimer > 0.005f) {              // slow down the updates on a fast computer, so we can see the sand falling
+                computeNextState();
+                updateTimer = 0;
+                readTexIndex = 1 - readTexIndex; // switch input and output buffer for next iteration
+            }
         }
 
         // render the texture to the screen
